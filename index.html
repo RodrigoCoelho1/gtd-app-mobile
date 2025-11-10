@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTD App - Método Getting Things Done</title>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 32px;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: #17a2b8;
+      color: white;
+    }
+    .btn-primary:hover { background: #138496; }
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+    .btn-success:hover { background: #218838; }
+    .info {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #495057;
+    }
+    .tasks-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .task-card {
+      background: #f8f9fa;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border-left: 4px solid #17a2b8;
+    }
+    .task-title {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .task-status {
+      font-size: 12px;
+      color: #666;
+    }
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 GTD App</h1>
+    
+    <div class="button-group">
+      <button class="btn-primary" onclick="carregarTarefas()">🔄 Carregar</button>
+      <button class="btn-success" onclick="adicionarTarefa()">➕ Adicionar</button>
+    </div>
+    
+    <div class="info" id="contador">Carregando...</div>
+    
+    <div class="tasks-list" id="tarefasList">
+      <div class="loading">Clique em Carregar para listar tarefas</div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDu7xK9mQ2pL5nR8sT1uV2wX3yZ4aB5cD6",
+      authDomain: "gtd-app-12345.firebaseapp.com",
+      projectId: "gtd-app-12345",
+      storageBucket: "gtd-app-12345.appspot.com"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function carregarTarefas() {
+      try {
+        document.getElementById('tarefasList').innerHTML = '<div class="loading">Carregando...</div>';
+        const snapshot = await db.collection('usuarios/usuario_demo_123/caixa_entrada').get();
+        const tarefas = [];
+        snapshot.forEach(doc => {
+          tarefas.push({ id: doc.id, ...doc.data() });
+        });
+        
+        document.getElementById('contador').textContent = `Total: ${tarefas.length} tarefas`;
+        
+        if (tarefas.length === 0) {
+          document.getElementById('tarefasList').innerHTML = '<div class="loading">Nenhuma tarefa encontrada</div>';
+          return;
+        }
+        
+        let html = '';
+        tarefas.forEach(tarefa => {
+          html += `
+            <div class="task-card">
+              <div class="task-title">${tarefa.titulo}</div>
+              <div class="task-status">Status: ${tarefa.status || 'entrada'}</div>
+            </div>
+          `;
+        });
+        document.getElementById('tarefasList').innerHTML = html;
+      } catch (e) {
+        alert('Erro: ' + e.message);
+        console.error(e);
+      }
+    }
+
+    async function adicionarTarefa() {
+      try {
+        await db.collection('usuarios/usuario_demo_123/caixa_entrada').add({
+          titulo: 'Nova tarefa - ' + new Date().getTime(),
+          status: 'entrada',
+          data_captura: new Date().toISOString()
+        });
+        alert('✅ Tarefa adicionada com sucesso!');
+        carregarTarefas();
+      } catch (e) {
+        alert('Erro: ' + e.message);
+        console.error(e);
+      }
+    }
+
+    // Carregar ao abrir
+    carregarTarefas();
+  </script>
+</body>
+</html>
