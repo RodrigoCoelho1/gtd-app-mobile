@@ -1,0 +1,22 @@
+{
+  "name": "gtd-app-mobile",
+  "version": "1.0.0",
+  "description": "App GTD multiplataforma com IA",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "web": "react-native web"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-native": "^0.72.0",
+    "firebase": "^10.0.0",
+    "axios": "^1.4.0",
+    "moment": "^2.29.4"
+  },
+  "devDependencies": {
+    "@react-native-community/eslint-config": "^3.2.0"
+  }
+}
